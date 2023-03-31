@@ -1,0 +1,6 @@
+5 6
+E   SE  E   E   E   X
+S   ESW X   E   ES  S
+S   E   E   N   S   X
+E   S   X   Z   W   X
+X   WE  X   X   X   X

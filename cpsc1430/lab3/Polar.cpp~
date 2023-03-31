@@ -1,0 +1,65 @@
+#ifndef POLAR_CPP
+#define POLAR_CPP
+#include "Polar.h"
+
+Polar::Polar(double initR, double initA)
+{
+  r = initR;
+  a = initA;
+  while(a < 0 || a > 2 * M_PI)
+    {
+      if(a < -2 * M_PI)
+        {
+          a += 2 * M_PI;
+        }
+      else if (a > 2 * M_PI)
+        {
+          a -= 2 * M_PI;
+        }
+      else
+        {
+          a = a*-1;
+          a = (2 * M_PI) - a;
+        }
+    }
+}
+
+Polar::Polar(const Cartesian &cartesian)
+{
+  r = sqrt(pow(cartesian.getX(), 2) * pow(cartesian.getY(), 2));
+  if(cartesian.getX() == 0)
+    {
+      a = 0;
+    }
+  else if(cartesian.getX() > 0 && cartesian.getY() >= 0)
+    {
+      a = atan(cartesian.getY() / cartesian.getX());
+    }
+  else if(cartesian.getX() < 0)
+    {
+      a = M_PI + atan(cartesian.getY() / cartesian.getX());
+    }
+  else
+    {
+      a = 2 * M_PI + atan(cartesian.getY() / cartesian.getX());
+    }
+}
+
+double Polar::getR() const
+{
+  return r;
+}
+
+double Polar::getA() const
+{
+  return a;
+}
+
+double Polar::toDegrees()
+{
+  double temp;
+  temp = a * (180 / M_PI);
+  return temp;
+}
+
+#endif

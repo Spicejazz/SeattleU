@@ -1,0 +1,213 @@
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+struct Node
+{
+  //struct for rooms, containing x and y coordinates and a string with the exits.
+  int x;
+  int y;
+  string exits;
+  Node *next;
+  Node(); //default constructor
+  Node(int, int); //constructor for initiating coordinates.
+};
+
+Node::Node()
+{
+  x = 0;
+  y = 0;
+  exits = "";
+  next = nullptr;
+}
+
+Node::Node(int i, int j)
+{
+  x = i;
+  y = j;
+  exits = "";
+  next = nullptr;
+}
+
+class Stack
+{
+  //basic stack data structure
+public:
+  Node *front;
+  Stack();
+  void push(Node*);
+  Node* pop();
+  bool isEmpty();
+};
+
+Stack::Stack()
+{
+  front = nullptr;
+}
+
+void Stack::push(Node *toAdd)
+{
+  //pushes a node to the front of the stack
+  Node *temp = new Node;
+  temp->exits = toAdd->exits;
+  temp->next = front;
+  front = temp;
+}
+
+Node* Stack::pop()
+{
+  //removes and returns the front node of the stack
+  Node *temp = nullptr;
+  if (isEmpty())
+    {
+      return temp;
+    }
+  temp = front;
+  front = front->next;
+  return temp;
+}
+
+bool Stack::isEmpty()
+{
+  //checks if the stack is empty
+  if (front == nullptr)
+    {
+      return true;
+    }
+  else
+    {
+      return false;
+    }
+}
+
+Node** read(string fileName)
+{
+  ifstream userFile;
+  userFile.open(fileName); //opens file to be read
+  
+  if(userFile.fail())
+    {
+      cout << "Please run the program again and enter the correct file name" << endl; //catch case for if the file does not exist
+      return nullptr;
+    }
+  else
+    {
+      //creates a 2d array of nodes and stores their coordinates and exits.
+      int rows;
+      int columns;
+      userFile >> rows;
+      userFile >> columns;
+      cout << "rows: " << rows << endl; 
+      cout << "columns: " << columns << endl; 
+      Node **coords = new Node*[rows];
+      
+      for (int i = 0; i < rows; i++)
+        {
+          coords[i] = new Node[columns];
+        }
+      
+      while(userFile.peek() != EOF)
+        {
+          for (int i = 0; i < rows; i++)
+            {
+              for (int j = 0; j < columns; j++)
+                {
+                  coords[i][j].x = i;
+                  coords[i][j].y = j;
+                  userFile >> coords[i][j].exits;
+                  cout << "coords: " << coords[i][j].x << ", " << coords[i][j].y << endl;
+                  cout << "Exits: " << coords[i][j].exits << endl;
+                }
+            }
+        }
+      userFile.close();
+      return coords;
+    }
+}
+
+bool navigate(Node **maze)
+{
+  //takes a 2d array of nodes and runs them through the stack to find an exit
+  Stack rooms;
+  int i = 0;
+  int j = 0;
+  int tempI = i;
+  int tempJ = j;
+  char dir;
+  Node *temp = new Node(i, j); //initializes 0,0 room and adds to stack
+  temp->exits = maze[i][j].exits;
+  rooms.push(temp);
+  
+  while (!rooms.isEmpty())
+    {
+      temp = rooms.pop(); //pops room then does comparisons
+      cout << "current coords: " << i << ", " << j << endl;
+      if (temp->exits != "Z")
+        {
+          for (long unsigned int g = 0; g < temp->exits.size(); g++)
+            {
+              //attempts to run through all possible directions but currently fails on more complex mazes with multiple direction rooms
+              dir = temp->exits.at(g);
+              if (dir == 'N')
+                {
+                  tempI--;
+                  temp->x = tempI;
+                  temp->y = j;
+                  temp->exits = maze[tempI][j].exits;
+                  rooms.push(temp);
+                  cout << "moving north" << endl;
+                }
+              else if (dir == 'S')
+                {
+                  tempI++;
+                  temp->x = tempI;
+                  temp->y = j;
+                  temp->exits = maze[tempI][j].exits;
+                  rooms.push(temp);
+                  cout << "moving south" << endl;
+                }
+              else if (dir == 'E')
+                {
+                  tempJ++;
+                  temp->y = tempJ;
+                  temp->x = i;
+                  temp->exits = maze[i][tempJ].exits;
+                  rooms.push(temp);
+                  cout << "moving east" << endl;
+                }
+              else if (dir == 'W')
+                {
+                  tempJ--;
+                  temp->y = tempJ;
+                  temp->x = i;
+                  temp->exits = maze[i][tempJ].exits;
+                  rooms.push(temp);
+                  cout << "moving west" << endl;
+                }
+            }
+          //updates coordinates after running through directions
+          i = tempI;
+          j = tempJ;
+        }
+      else
+        {
+          return true;
+        } 
+    }
+  return false;
+}
+
+int main(int argc, char **argv)
+{
+  Node **maze = read(argv[1]);
+  if(navigate(maze))
+    {
+      cout << "found exit" << endl;
+    }
+  else
+    {
+      cout << "could not find exit" << endl;
+    }
+  return 0;
+}
