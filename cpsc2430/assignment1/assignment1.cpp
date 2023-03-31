@@ -1,0 +1,141 @@
+/*
+  Ben Kahl
+  assignment1.cpp
+  Purpose: This program allows users to add or remove animals 
+  from a queue interface
+*/
+
+#include <iostream>
+#include <queue>
+using namespace std;
+
+struct Pet{
+  //struct that holds name of the pet and the position it was added at
+  string name;
+  int pos;
+};
+
+void shelterManager(int selection, queue<Pet*> &dogShelter, queue<Pet*> &catShelter, int &counter)
+{
+  /*function that takes the userInputs, references to the queues being modified, and a int counter 
+    to keep track of the oldest animal in the shelter*/
+  //variables used in the different cases
+  string userName;
+  Pet *dogTemp;
+  Pet *catTemp;
+  //A switch statement to handle the user's desired function
+  switch (selection){
+  case 1:
+    //takes user inputted name and creates a new Pet object
+    cout << "Please enter the CAT's name:" << endl;
+    cin >> userName;
+    counter++;
+    catTemp = new Pet;
+    catTemp->name = userName;
+    catTemp->pos = counter;
+    catShelter.push(catTemp);
+    break;
+  case 2:
+    //takes user inputted name and creates a new Pet object
+    cout << "Please enter the DOG's name:" << endl;
+    cin >> userName;
+    dogTemp = new Pet;
+    counter++;
+    dogTemp->name = userName;
+    dogTemp->pos = counter;
+    dogShelter.push(dogTemp);
+    break;
+  case 3:
+    //if catShelter isn't empty, this function pops the oldest Cat from the queue
+    if (!catShelter.empty())
+      {
+        catTemp = catShelter.front();
+        catShelter.pop();
+      }
+    else{
+      cout << "No cats are available for adoption" << endl;
+      break;
+    }
+    cout << "Congrats on adopting a CAT, their name is: " << catTemp->name << endl;
+    delete catTemp;
+    break;
+  case 4:
+    //if dogShelter isn't empty, this function pops the oldest Dog from the queue
+    if (!dogShelter.empty())
+      {
+        dogTemp = dogShelter.front();
+        dogShelter.pop();
+      }
+    else{
+      cout << "No dogs are available for adoption" << endl;
+      break;
+    }
+    cout << "Congrats on adopting a DOG, their name is: " << dogTemp->name << endl;
+    delete dogTemp;
+    break;
+  case 5:
+    /*depending on the objects currently in the cat and dog queues, this function will pop the oldest object 
+      based on the position variable held in the front object*/
+    if (!catShelter.empty() && !dogShelter.empty()){
+      dogTemp = dogShelter.front();
+      catTemp = catShelter.front();
+      if (dogTemp->pos <= catTemp->pos){
+        dogShelter.pop();
+        cout << "Congrats on adopting a DOG, their name is: " << dogTemp->name << endl;
+        delete dogTemp;
+      }
+      else{
+        catShelter.pop();
+        cout << "Congrats on adopting a CAT, their name is: " << catTemp->name << endl;
+        delete catTemp;
+      }
+    }
+    else if(catShelter.empty() && !dogShelter.empty()){
+      //if the cat shelter is empty it will default to popping the oldest dog instead
+      dogTemp = dogShelter.front();
+      dogShelter.pop();
+      cout << "Congrats on adopting a DOG, their name is: " << dogTemp->name << endl;
+      delete dogTemp;
+    }
+    else if(dogShelter.empty() && !catShelter.empty()){
+      //if the dog shelter is empty it will default to popping the oldest cat instead
+      catTemp = catShelter.front();
+      catShelter.pop();
+      cout << "Congrats on adopting a CAT, their name is: " << catTemp->name << endl;
+      delete catTemp;
+    }
+    else{
+      cout << "No animals are currently available for adoption" << endl;
+      break;    
+    }
+    break;
+  default:
+    //default case for any invalid inputs or 6 for quitting out
+    break;
+  }
+}
+
+void userInterface(){
+  //simple user interface function that also creates the cat and dog queues used by the shelter manager function
+  int userInput = 0;
+  int counter;
+  queue<Pet*> dogShelter;
+  queue<Pet*> catShelter;
+  while (userInput != 6){
+    cout << "Welcome to the animal shelter. What would you like to do?" << endl;
+    cout << "1. Add a CAT to the shelter" << endl;
+    cout << "2. Add a DOG to the shelter" << endl;
+    cout << "3. Adopt a CAT from the shelter" << endl;
+    cout << "4. Adopt a DOG from the shelter" << endl;
+    cout << "5. Adopt any animal from the shelter" << endl;
+    cout << "6. Exit" << endl;
+    cin >> userInput;
+    shelterManager(userInput, dogShelter, catShelter, counter);
+  }
+}
+
+int main(){
+  //only need 1 call to userInterface() which handles the rest of the program
+  userInterface();
+  return EXIT_SUCCESS;
+}
